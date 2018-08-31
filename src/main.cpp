@@ -125,7 +125,9 @@ int main()
     	  estimate(2) = v1;
     	  estimate(3) = v2;
     	  
+
     	  estimations.push_back(estimate);
+
 
     	  VectorXd RMSE = tools.CalculateRMSE(estimations, ground_truth);
 

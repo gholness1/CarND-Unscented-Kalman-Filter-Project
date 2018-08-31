@@ -13,6 +13,9 @@ using Eigen::VectorXd;
 class UKF {
 public:
 
+  double NIS_laser_;
+  double NIS_radar_;
+
   ///* initially set to false, set to true in first call of ProcessMeasurement
   bool is_initialized_;
 
@@ -24,15 +27,28 @@ public:
 
   ///* state vector: [pos1 pos2 vel_abs yaw_angle yaw_rate] in SI units and rad
   VectorXd x_;
+  VectorXd x_aug_;
+  VectorXd z_pred_;
+
+  ///* augmented state vector 
 
   ///* state covariance matrix
   MatrixXd P_;
+  MatrixXd P_aug_;
+  MatrixXd P_pred_;
+
+  ///* process covariance
+  MatrixXd Q_;
 
   ///* predicted sigma points matrix
   MatrixXd Xsig_pred_;
+  MatrixXd Xsig_pred_aug_;
 
   ///* time when the state is true, in us
   long long time_us_;
+
+  ///* previous timestamp used to calculate delta_t
+  long previous_timestamp_;
 
   ///* Process noise standard deviation longitudinal acceleration in m/s^2
   double std_a_;
@@ -55,6 +71,11 @@ public:
   ///* Radar measurement noise standard deviation radius change in m/s
   double std_radrd_ ;
 
+  ///* Radar measurement noise covariance matrix
+  MatrixXd R_radar_;
+  ///* LIDAR measurement noise covariance matrix
+  MatrixXd R_laser_;
+
   ///* Weights of sigma points
   VectorXd weights_;
 
@@ -67,6 +88,16 @@ public:
   ///* Sigma point spreading parameter
   double lambda_;
 
+  ///* num sigma points
+  int NUM_SIGPTS_;
+
+  ///* Generated Sigma points
+  MatrixXd Xsig_gen_;
+
+  MatrixXd Xsig_aug_;
+ 
+  ///* Sigma points in measurement space
+  MatrixXd Zsig_;
 
   /**
    * Constructor
@@ -77,6 +108,12 @@ public:
    * Destructor
    */
   virtual ~UKF();
+
+  /**
+   * Generate augmented sigma points
+   */
+  void AugmentedSigmaPoints();
+
 
   /**
    * ProcessMeasurement
@@ -102,6 +139,11 @@ public:
    * @param meas_package The measurement at k+1
    */
   void UpdateRadar(MeasurementPackage meas_package);
+
+  /**
+   * Updates the measurement state
+   */
+  void UpdateMeasurementState(int n_z, MeasurementPackage meas_package, MatrixXd S);
 };
 
 #endif /* UKF_H */
